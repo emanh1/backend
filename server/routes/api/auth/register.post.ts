@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { hashPassword } from '@/utils/auth';
+import { generateToken, hashPassword } from '@/utils/auth';
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -37,12 +37,15 @@ export default defineEventHandler(async (event) => {
     }
   });
 
+  const token = await generateToken(user.userId);
+
   return {
     message: 'User registered successfully',
     user: {
       userId: user.userId,
       email: user.email,
       username: user.username,
-    }
+    },
+    token: token
   };
 });

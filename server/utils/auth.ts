@@ -1,12 +1,18 @@
 import bcrypt from 'bcrypt';
-    
+
 export async function hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
 }
 
 export async function comparePasswords(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash);
+  return bcrypt.compare(password, hash);
+}
+
+export async function generateToken(userId: string): Promise<string> {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: '1h'
+  });
 }
 
 import jwt from 'jsonwebtoken';
