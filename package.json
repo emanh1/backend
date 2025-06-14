@@ -8,6 +8,7 @@
     "preview": "node .output/server/index.mjs"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "nitropack": "latest",
     "prisma": "^6.9.0"
   },
