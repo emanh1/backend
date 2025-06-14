@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Chapter {
+  chapterId       String                @id @default(uuid()) @db.Uuid
+  malId           Int
+  language        String                @db.VarChar(255)
+  volume          Int?
+  chapterNumber   Int?
+  chapterTitle    String?               @db.VarChar(255)
+  isOneshot       Boolean               @default(false)
+  status          enum_Chapter_status   @default(pending)
+  rejectionReason String?
+  uploaderId      String                @db.Uuid
+  viewCount       Int                   @default(0)
+  createdAt       DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime              @updatedAt @db.Timestamptz(6)
+  uploader        User                  @relation(fields: [uploaderId], references: [userId], onDelete: Cascade)
+  pages           Page[]
+}
+
+model Page {
+  pageId    Int      @id @default(autoincrement())
+  chapterId String   @db.Uuid
+  filePath  String   @db.VarChar(255)
+  fileOrder Int
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  Chapter   Chapter  @relation(fields: [chapterId], references: [chapterId], onDelete: Cascade)
+}
+
+model User {
+  userId               String           @id @default(uuid()) @db.Uuid
+  username             String           @unique @db.VarChar(255)
+  email                String           @unique @db.VarChar(255)
+  password             String           @db.VarChar(255)
+  role                 enum_User_role   @default(user)
+  bio                  String?          @db.VarChar(500)
+  avatarUrl            String?          @db.VarChar(255)
+  resetPasswordToken   String?          @db.VarChar(255)
+  resetPasswordExpires DateTime?        @db.Timestamptz(6)
+  createdAt            DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime         @updatedAt @db.Timestamptz(6)
+  uploads              Chapter[]
+}
+
+enum enum_Chapter_status {
+  pending
+  approved
+  rejected
+}
+
+enum enum_User_role {
+  user
+  admin
+}
+
