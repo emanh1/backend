@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const chapters = await prisma.chapter.findMany({
     where: {
-      malId: Number(titleId)
+      malId: Number(titleId),
+      status: 'approved'
     },
     orderBy: {
       chapterNumber: 'asc'
