@@ -5,7 +5,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./server/*"],
-      "@dbclient": [".prisma/client"]
     }
   }
 }
