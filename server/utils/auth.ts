@@ -49,4 +49,12 @@ export async function isAuthenticated(event) {
   } catch {
     throw createError({ statusCode: 401, message: 'Invalid or expired token' });
   }
-});
+}
+
+export async function isAdmin(event) {
+  await isAuthenticated(event);
+  const user = event.context.user;
+  if (!user || user.role !== 'admin') {
+    throw createError({ statusCode: 403, message: 'Forbidden: Admin access required' });
+  }
+}
