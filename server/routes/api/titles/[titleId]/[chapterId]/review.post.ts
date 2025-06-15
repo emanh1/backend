@@ -1,9 +1,17 @@
+import { isAdmin } from '@/utils/auth';
 import { prisma } from '@/utils/prisma';
 
+interface ReviewQuery {
+  status: string;
+  reason?: string;
+}
+
 export default defineEventHandler(async (event) => {
+  await isAdmin(event);
   const { titleId, chapterId } = event.context.params;
-  const query = getQuery(event);
-  const approve = query.approve;
+  const query: ReviewQuery = getQuery(event);
+  const status = query.status;
+  const reason = query.reason;
 
   if (!titleId || !chapterId) {
     throw createError({
@@ -31,14 +39,14 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Chapter is not pending for review',
     });
   }
-  if (approve !== 'true' && approve !== 'false') {
+  if (status !== 'approved' && status !== 'rejected') {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid approval status. Use "approve=true" or "approve=false".',
+      statusMessage: 'Invalid approval status. Use "status=approved" or "status=rejected".',
     });
   }
 
-  if (approve) {
+  if (status === 'approved') {
     await prisma.chapter.update({
       where: {
         chapterId: chapter.chapterId
@@ -53,13 +61,17 @@ export default defineEventHandler(async (event) => {
         chapterId: chapter.chapterId
       },
       data: {
-        status: 'rejected'
+        status: 'rejected',
+        rejectionReason: reason || 'No reason provided'
       }
     });
   }
   return {
-    message: `Chapter ${approve ? 'approved' : 'rejected'} successfully`,
-    // return updated chapter?
+    chapter: {
+      id: chapter.chapterId,
+      status: chapter.status,
+      rejectionReason: chapter.rejectionReason
+    }
   };
 } 
 );
