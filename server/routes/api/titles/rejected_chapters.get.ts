@@ -1,17 +1,9 @@
 import { prisma } from '@/utils/prisma';
 
 export default defineEventHandler(async (event) => {
-  const titleId = event.context.params?.titleId;
-  if (!titleId) {
-    throw createError({
-      statusCode: 400,
-      message: 'Title ID is required'
-    });
-  }
 
   const chapters = await prisma.chapter.findMany({
     where: {
-      malId: Number(titleId),
       status: 'rejected'
     },
     orderBy: {
