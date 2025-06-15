@@ -8,14 +8,19 @@ export default defineEventHandler(async (event) => {
     },
     orderBy: {
       chapterNumber: 'asc'
+    },
+    include: {
+      uploader: {
+        select: {
+          userId: true,
+          username: true,
+        }
+      }
     }
   });
 
   if (!chapters || chapters.length === 0) {
-    throw createError({
-      statusCode: 404,
-      message: 'No pending chapters found for this title'
-    });
+    return { message: 'No pending chapters found' };
   }
   return {
     message: 'Pending chapters retrieved successfully',
