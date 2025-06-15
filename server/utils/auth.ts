@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
@@ -15,15 +16,12 @@ export async function generateToken(userId: string): Promise<string> {
   });
 }
 
-import jwt from 'jsonwebtoken';
+export async function isAuthenticated(event) {
+  const token = getCookie(event, 'access_token');
 
-export default defineEventHandler(async (event) => {
-  const authHeader = getHeader(event, 'authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw createError({ statusCode: 401, message: 'Authorization token missing or invalid' });
+  if (!token) {
+    throw createError({ statusCode: 401, message: 'Authorization token missing' });
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: string };
@@ -48,7 +46,7 @@ export default defineEventHandler(async (event) => {
     }
 
     event.context.user = user;
-  } catch (err) {
+  } catch {
     throw createError({ statusCode: 401, message: 'Invalid or expired token' });
   }
 });

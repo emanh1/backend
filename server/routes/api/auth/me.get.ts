@@ -1,7 +1,7 @@
-import authMiddleware from '@/utils/auth';
+import { isAuthenticated } from '@/utils/auth';
 
 export default defineEventHandler(async (event) => {
-  await authMiddleware(event);
+  await isAuthenticated(event);
   const user = event.context.user;
 
   if (!user) {

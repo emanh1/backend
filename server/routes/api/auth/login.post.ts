@@ -38,6 +38,14 @@ export default defineEventHandler(async (event) => {
 
   const token = await generateToken(user.userId);
 
+  setCookie(event, 'access_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24 * 14, // 2 weeks
+    path: '/',
+  });
+
   return {
     message: 'Login successful',
     user: {
@@ -45,6 +53,5 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       username: user.username
     },
-    token: token
   };
 });
